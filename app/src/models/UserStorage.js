@@ -23,6 +23,17 @@ class UserStorage {
     // 그 다음 변수들은 field에 들어감
     // hasOwnProperty: users에 field가 해당하는 key 값이 있는지 물어보는 것
 
+    static getUserInfo(id) {
+        const users = this.#users;
+        const idx = users.id.indexOf(id);
+        const usersKeys = Object.keys(users); // => [id, pw, name]와 같은 배열이 만들어짐
+        const userInfo = usersKeys.reduce((newUser, info) => {
+            newUser[info] = users[info][idx];
+            return newUser;
+        }, {});
+
+        return userInfo;
+    }
 }
 
 module.exports = UserStorage;
