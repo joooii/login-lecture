@@ -1,15 +1,23 @@
 "use strict";
 
+const fs = require("fs").promises;
+
 class UserStorage {
-    // static: 다른 js 파일에서 class 자체에서 users 접근하고자 할 때 선언
-    static #users = {   // #users: 외부에서 users를 불러올 수 없음!!!
-        id: ["kim", "ju", "hee"],
-        pw: ["1", "1", "2"],
-        name: ["김", "주", "희"],
-    };
+    static #getUserInfo(data, id) {     // 은닉화 -> private한 함수는 항상 최상단에 올려줘야 함
+        const users = JSON.parse(data);
+        const idx = users.id.indexOf(id);
+        const usersKeys = Object.keys(users); // => [id, psword, name]
+        const userInfo = usersKeys.reduce((newUser, info) => {
+          newUser[info] = users[info][idx];
+          return newUser;
+        }, {});
+    
+        return userInfo;
+      }
+
     // 데이터 은닉화(#users) -> 메서드로 전달해줘야 함
     static getUsers(...fields) {
-        const users = this.#users;
+        // const users = this.#users;
         const newUsers = fields.reduce((newUsers, field) => {
             if (users.hasOwnProperty(field)){
                 newUsers[field] = users[field];
@@ -24,19 +32,16 @@ class UserStorage {
     // hasOwnProperty: users에 field가 해당하는 key 값이 있는지 물어보는 것
 
     static getUserInfo(id) {
-        const users = this.#users;
-        const idx = users.id.indexOf(id);
-        const usersKeys = Object.keys(users); // => [id, pw, name]와 같은 배열이 만들어짐
-        const userInfo = usersKeys.reduce((newUser, info) => {
-            newUser[info] = users[info][idx];
-            return newUser;
-        }, {});
-
-        return userInfo;
+        return fs
+        .readFile("./src/databases/users.json")
+        .then((data) => {
+          return this.#getUserInfo(data, id);
+        })
+        .catch(console.error);
     }
 
     static save(userInfo) {
-        const users = this.#users;
+        // const users = this.#users;
         users.id.push(userInfo.id);
         users.name.push(userInfo.name);
         users.pw.push(userInfo.pw);

@@ -1,5 +1,6 @@
 "use strict";
 
+const { response } = require("express");
 const UserStorage = require("./UserStorage");
 
 class User {
@@ -7,20 +8,20 @@ class User {
         this.body = body;
     };
 
-    login() {
-        const client = this.body; 
-        const { id, pw } = UserStorage.getUserInfo(client.id);    // client가 입력한 것
-        
-        if(id) {    // id가 존재하면
-            if (id === client.id && pw === client.pw) {
-                return { success: true };
-            }
-            return { success: false, msg: "비밀번호가 틀렸습니다." };        
+    async login() {
+        const client = this.body;
+        const { id, pw } = await UserStorage.getUserInfo(client.id);
+    
+        if (id) {
+          if (id === client.id && pw === client.pw) {
+            return { success: true };
+          }
+          return { success: false, msg: "비밀번호가 틀렸습니다." };
         }
-
         return { success: false, msg: "존재하지 않는 아이디입니다." };
-    }
+      }
 
+   
     register() {
         const client = this.body;
         const response = UserStorage.save(client);
